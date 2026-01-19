@@ -3,15 +3,28 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
+	"log"
 	"net/http"
 
 	"github.com/AppBlitz/taskConvert/internal/models"
 )
 
+var (
+	oneMetre      float64
+	thousandMetre float64
+)
+
 func LengthHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if r.Method == http.MethodPost {
-		_, err := w.Write(structToBytes(models.RequestLength{UnitToConvertFrom: "Km", UnitToConvertTo: "m", RequestLength: 1.3}))
+		// _, err := w.Write(structToBytes(models.RequestLength{UnitToConvertFrom: "Km", UnitToConvertTo: "m", RequestLength: 1.3}))
+		_, err := w.Write(data)
 		if err != nil {
 			http.Error(w, "Error with response", http.StatusConflict)
 		}
@@ -36,8 +49,20 @@ func calculatorLengthh(structCalculatorLength models.StrucCalculatorLength) floa
 	var responseLength float64
 	if structCalculatorLength.UnitToConvertFrom == "Km" {
 		if structCalculatorLength.UnitToConvertTo == "m" {
-			responseLength = structCalculatorLength.Value
+			responseLength = validationKm(structCalculatorLength.Value)
 		}
 	}
 	return responseLength
+}
+
+func validationKm(km float64) float64 {
+	// 1km=0.001m
+	oneMetre = float64(1)
+	// 1000m= 1 km
+	thousandMetre = float64(1000)
+	return (multiplicationtwoNumbers(thousandMetre, km) / oneMetre)
+}
+
+func multiplicationtwoNumbers(numberOne, numberTwo float64) float64 {
+	return numberOne * numberTwo
 }

@@ -10,7 +10,7 @@ type LengthUnit struct {
 type RequestLength struct {
 	UnitToConvertFrom string  `json:"unitToConvertFrom"`
 	UnitToConvertTo   string  `json:"unitToConvertTo"`
-	RequestLength     float64 `json:"responseUnit"`
+	RequestLength     float64 `json:"requestLength"`
 }
 
 type StrucCalculatorLength struct {
