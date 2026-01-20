@@ -17,19 +17,23 @@ var (
 
 func LengthHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+	var dataRequest models.RequestLength
 	data, err := io.ReadAll(r.Body)
+	erro := json.Unmarshal(data, &dataRequest)
+	if erro != nil {
+		http.Error(w, "read data error", http.StatusConflict)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	if r.Method == http.MethodPost {
-		// _, err := w.Write(structToBytes(models.RequestLength{UnitToConvertFrom: "Km", UnitToConvertTo: "m", RequestLength: 1.3}))
-		_, err := w.Write(data)
+		_, err := w.Write(structToBytes(dataRequest))
 		if err != nil {
 			http.Error(w, "Error with response", http.StatusConflict)
 		}
 	} else {
-		http.Error(w, "Method no valid", http.StatusMethodNotAllowed)
+		http.Error(w, dataRequest.UnitToConvertFrom, http.StatusMethodNotAllowed)
 	}
 	w.Header().Set("Content-type", "Application/json")
 }
@@ -47,9 +51,16 @@ func structToBytes(requestLength models.RequestLength) []byte {
 
 func calculatorLengthh(structCalculatorLength models.StrucCalculatorLength) float64 {
 	var responseLength float64
-	if structCalculatorLength.UnitToConvertFrom == "Km" {
+
+	switch structCalculatorLength.UnitToConvertFrom {
+	case "km":
 		if structCalculatorLength.UnitToConvertTo == "m" {
 			responseLength = validationKm(structCalculatorLength.Value)
+		}
+
+	case "m":
+		if structCalculatorLength.UnitToConvertTo == "km" {
+			responseLength = convertOfMetreToKm(structCalculatorLength.Value)
 		}
 	}
 	return responseLength
@@ -61,6 +72,14 @@ func validationKm(km float64) float64 {
 	// 1000m= 1 km
 	thousandMetre = float64(1000)
 	return (multiplicationtwoNumbers(thousandMetre, km) / oneMetre)
+}
+
+func convertOfMetreToKm(metre float64) float64 {
+	// 1km=0.001m
+	oneMetre = float64(1)
+	// 1000m=1km
+	thousandMetre = float64(1000)
+	return (multiplicationtwoNumbers(oneMetre, metre) / thousandMetre)
 }
 
 func multiplicationtwoNumbers(numberOne, numberTwo float64) float64 {
