@@ -12,6 +12,7 @@ import (
 func main() {
 	servers := http.NewServeMux()
 	servers.HandleFunc("/length", handlers.LengthHandler)
+	servers.HandleFunc("/temperature", handlers.HandlerTemperature)
 	erro := http.ListenAndServe(":3333", servers)
 	if errors.Is(erro, http.ErrServerClosed) {
 		fmt.Printf("%s\n", "Serve closed")
