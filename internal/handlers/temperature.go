@@ -29,16 +29,15 @@ func HandlerTemperature(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-type", "Application/json")
 }
 
-func celsiusToKelvin(celsius float64) float64 {
-	return celsius + valueZeroCelsiusInKelvin
-}
-
 func createSolutionTemperature(dataRequest models.RequestLength) float64 {
 	var solutionTemperature float64
 	switch dataRequest.UnitToConvertFrom {
 	case "c":
-		if dataRequest.UnitToConvertTo == "k" {
+		switch dataRequest.UnitToConvertTo {
+		case "k":
 			solutionTemperature = celsiusToKelvin(dataRequest.RequestLength)
+		case "f":
+			solutionTemperature = celsiusToFarenheit(dataRequest.RequestLength)
 		}
 	case "k":
 		switch dataRequest.UnitToConvertTo {
@@ -46,6 +45,13 @@ func createSolutionTemperature(dataRequest models.RequestLength) float64 {
 			solutionTemperature = kelvinToCelsius(dataRequest.RequestLength)
 		case "f":
 			solutionTemperature = kelvinToFarenheit(dataRequest.RequestLength)
+		}
+	case "f":
+		switch dataRequest.UnitToConvertTo {
+		case "k":
+			solutionTemperature = farenheitToKelvin(dataRequest.RequestLength)
+		case "c":
+			solutionTemperature = farenheitToCelsius(dataRequest.RequestLength)
 		}
 
 	}
@@ -69,4 +75,29 @@ func kelvinToFarenheit(degreeKelvin float64) float64 {
 	solutionDegree = degreeKelvin - float64(273.15)
 	solutionDegree = solutionDegree * float64(1.8)
 	return solutionDegree + 32
+}
+
+func celsiusToKelvin(celsius float64) float64 {
+	return celsius + valueZeroCelsiusInKelvin
+}
+
+func farenheitToKelvin(farenheitDegree float64) float64 {
+	var solutionDegree float64
+	solutionDegree = (farenheitDegree) / float64(1.8)
+	solutionDegree = solutionDegree + float64(273.15)
+	return solutionDegree
+}
+
+func farenheitToCelsius(degreeFarenheit float64) float64 {
+	var solutionCelsius float64
+	solutionCelsius = degreeFarenheit - float64(32)
+	solutionCelsius = solutionCelsius / float64(1.8)
+	return solutionCelsius
+}
+
+func celsiusToFarenheit(degreeCelsius float64) float64 {
+	var solutionFarenheti float64
+	solutionFarenheti = degreeCelsius * float64(1.8)
+	solutionFarenheti = solutionFarenheti + 32
+	return solutionFarenheti
 }
